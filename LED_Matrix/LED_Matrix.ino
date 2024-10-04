@@ -6,12 +6,15 @@ int down[2] = {3,5};
 
 const int PADDLE_WIDTH = 3;
 int playerY[2] = { 3, 3 };
-int point1 = 0;
-int point2 = 0;
-float ballX = 8;
-float ballY = 8;
-float speedX = 0.25;
-float speedY = 0.5;
+int score[2] = { 0, 0 };
+
+struct ball_struct {
+  float x;
+  float y;
+  float xSpeed;
+  float ySpeed;
+};
+struct ball_struct ball = { 8, 8, 0.25, 0.5 };
 
 void IIC_start(int screenNumber);
 void IIC_send(unsigned char send_data, int screenNumber);
@@ -48,22 +51,6 @@ void columnToInt(int column[16], unsigned int values[2]) {
 
 }
 
-void setup() {
-  Serial.begin(9600);
-  pinMode(IIC_SCL[0], OUTPUT);
-  pinMode(IIC_SCL[1], OUTPUT);
-  pinMode(IIC_SDA[0], OUTPUT);
-  pinMode(IIC_SDA[1], OUTPUT);
-  pinMode(up[0], INPUT);
-  pinMode(up[1], INPUT);
-  pinMode(down[0], INPUT);
-  pinMode(down[1], INPUT);
-  digitalWrite(IIC_SCL[0], LOW);
-  digitalWrite(IIC_SCL[1], LOW);
-  digitalWrite(IIC_SDA[0], LOW);
-  digitalWrite(IIC_SDA[1], LOW);
-}
-
 void drawPaddles() {
 
   for (int player = 0; player < 2; player++) {
@@ -74,40 +61,40 @@ void drawPaddles() {
 }
 
 void drawBall(){
-  ballX += speedX;
-  if (ballX > 15){
-    ballX=8;
-    ballY=8;
-    point1++;
+  ball.x += ball.xSpeed;
+  if (ball.x > 15){
+    ball.x=8;
+    ball.y=8;
+    score[0]++;
     Serial.print("Player 1:");
-    Serial.println(point1);
+    Serial.println(score[0]);
     return;
   }
-  else if(ballX<0){
-    ballX=8;
-    ballY=8;
-    point2++;
+  else if(ball.x<0){
+    ball.x=8;
+    ball.y=8;
+    score[1]++;
     Serial.print("Player 2:");
-    Serial.println(point2);
+    Serial.println(score[1]);
     return;
   }
-  ballY += speedY;
-  if (ballY > 15){
-    speedY*=-1;
-    ballY-=2;
+  ball.y += ball.ySpeed;
+  if (ball.y > 15){
+    ball.ySpeed*=-1;
+    ball.y-=2;
   }
-  else if (ballY < 0){
-    speedY*=-1;
-    ballY += 2;
+  else if (ball.y < 0){
+    ball.ySpeed*=-1;
+    ball.y += 2;
   }
-  int x = floor(ballX);
-  int y = floor(ballY);
+  int x = floor(ball.x);
+  int y = floor(ball.y);
   if (!world[x][y] == 1){
     world[x][y] = 1;
   }
   else {
-    speedX*=-1;
-    speedY*=-1;
+    ball.xSpeed*=-1;
+    ball.ySpeed*=-1;
     delay(250);
   }
   
@@ -146,6 +133,22 @@ void handleInput(int player) {
   }
   #endif
 
+}
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(IIC_SCL[0], OUTPUT);
+  pinMode(IIC_SCL[1], OUTPUT);
+  pinMode(IIC_SDA[0], OUTPUT);
+  pinMode(IIC_SDA[1], OUTPUT);
+  pinMode(up[0], INPUT);
+  pinMode(up[1], INPUT);
+  pinMode(down[0], INPUT);
+  pinMode(down[1], INPUT);
+  digitalWrite(IIC_SCL[0], LOW);
+  digitalWrite(IIC_SCL[1], LOW);
+  digitalWrite(IIC_SDA[0], LOW);
+  digitalWrite(IIC_SDA[1], LOW);
 }
 
 /*----------------------------------------------------------------*/
