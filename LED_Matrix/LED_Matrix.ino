@@ -1,3 +1,5 @@
+#include "lib/iic.h"
+
 int IIC_SCL[2] = {A2, A4};
 int IIC_SDA[2] = {A1, A3};
 
@@ -15,10 +17,6 @@ struct ball_struct {
   float ySpeed;
 };
 struct ball_struct ball = { 8, 8, 0.25, 0.5 };
-
-void IIC_start(int screenNumber);
-void IIC_send(unsigned char send_data, int screenNumber);
-void IIC_end(int screenNumber);
 
 int world[16][16] = {
   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
@@ -93,8 +91,37 @@ void drawBall(){
     world[x][y] = 1;
   }
   else {
-    ball.xSpeed*=-1;
-    ball.ySpeed*=-1;
+    Serial.println((int)floor(ball.y-ball.ySpeed) - playerY[1]);
+    if (ball.xSpeed>0){
+      int delta_y = floor(ball.y-ball.ySpeed) - playerY[1];
+      if (delta_y == 1){
+        ball.xSpeed = -0.25;
+        ball.ySpeed = 0;
+      }
+      else if (delta_y < 1){
+        ball.xSpeed = -0.25;
+        ball.ySpeed = -0.5;
+      }
+      else {
+        ball.xSpeed = -0.25;
+        ball.ySpeed = 0.5;
+      }
+    }
+    else {
+      int delta_y = floor(ball.y-ball.ySpeed) - playerY[0];
+      if (delta_y == 1){
+        ball.xSpeed = 0.25;
+        ball.ySpeed = 0;
+      }
+      else if (delta_y < 1){
+        ball.xSpeed = 0.25;
+        ball.ySpeed = -0.5;
+      }
+      else {
+        ball.xSpeed = 0.25;
+        ball.ySpeed = 0.5;
+      }
+    }
     delay(250);
   }
   
