@@ -10,6 +10,9 @@ const int PADDLE_WIDTH = 3;
 int playerY[2] = { 3, 3 };
 int score[2] = { 0, 0 };
 
+//ANIMS
+int respawn = 0;
+
 struct ball_struct {
   float x;
   float y;
@@ -61,9 +64,10 @@ void drawPaddles() {
 }
 
 
-bool checkGoal(float nextX){
+bool checkGoal(float nextX, float nextY){
 
-  if (nextX > 15){
+  //TODO: Find better solution to fix the bug
+  if (nextX > 15 && world[(int)nextX][(int)nextY] == 0){
     ball.x=8;
     ball.y=8;
     score[0]++;
@@ -122,19 +126,16 @@ void playerCollision(float nextX, float nextY){
     if (delta_y == 1){
       ball.xSpeed = player ? -0.56 : 0.56;
       ball.ySpeed = 0;
-      Serial.println(ball.xSpeed);
     }
 
     else if (delta_y < 1){
       ball.xSpeed = player ? -0.25 : 0.25;
       ball.ySpeed = -0.5;
-      Serial.println(ball.xSpeed);
     }
 
     else {
       ball.xSpeed = player ? -0.25 : 0.25;
       ball.ySpeed = 0.5;
-      Serial.println(ball.xSpeed);
     }
 
     ball.x += ball.xSpeed;
@@ -148,9 +149,10 @@ void playerCollision(float nextX, float nextY){
 void drawBall(){
 
   float nextX = ball.x + ball.xSpeed;
-  if (checkGoal(nextX)){return;}
-
   float nextY = ball.y + ball.ySpeed;
+
+  if (checkGoal(nextX, nextY)){return;}
+
   wallCollision(nextY);
 
   playerCollision(nextX, nextY);
@@ -229,10 +231,6 @@ void loop() {
   handleInput(1);
   drawPaddles();
   drawBall();
-  Serial.print("x: ");
-  Serial.println(ball.xSpeed);
-  Serial.print("y: ");
-  Serial.println(ball.ySpeed);
 
 
   for (int i = 0; i < 16; i++) {
