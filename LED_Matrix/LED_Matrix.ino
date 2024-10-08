@@ -45,6 +45,7 @@ void columnToInt(int column[16], unsigned int values[2]) {
     unsigned int value2 = column[15 - exp];
     values[0] += value * ceil(pow(2, exp));
     values[1] += value2 * ceil(pow(2, exp));
+
   }
 
 }
@@ -56,74 +57,103 @@ void drawPaddles() {
       world[15 * player][i] = 1;
     }
   }
+
 }
 
-void drawBall(){
-  ball.x += ball.xSpeed;
-  if (ball.x > 15){
+
+bool checkGoal(float nextX){
+
+  if (nextX > 15){
     ball.x=8;
     ball.y=8;
     score[0]++;
-    Serial.print("Player 1:");
+    Serial.print("Player 1: ");
     Serial.println(score[0]);
-    return;
+    return 1;
   }
-  else if(ball.x<0){
+
+  else if(nextX < 0){
     ball.x=8;
     ball.y=8;
     score[1]++;
-    Serial.print("Player 2:");
+    Serial.print("Player 2: ");
     Serial.println(score[1]);
-    return;
+    return 1;
   }
-  ball.y += ball.ySpeed;
-  if (ball.y > 15){
+
+  return 0;
+
+}
+
+void wallCollision(float nextY){
+
+  if (nextY > 15){
     ball.ySpeed*=-1;
-    ball.y-=2;
   }
-  else if (ball.y < 0){
+
+  else if (nextY < 0){
     ball.ySpeed*=-1;
-    ball.y += 2;
   }
-  int x = floor(ball.x);
-  int y = floor(ball.y);
+
+}
+
+void playerCollision(float nextX, float nextY){
+
+  int x = nextX;
+  int y = nextY;
+
   if (!world[x][y] == 1){
     world[x][y] = 1;
+    ball.x = nextX;
+    ball.y = nextY;
   }
+
   else {
-    Serial.println((int)floor(ball.y-ball.ySpeed) - playerY[1]);
+
+    bool player;
     if (ball.xSpeed>0){
-      int delta_y = floor(ball.y-ball.ySpeed) - playerY[1];
-      if (delta_y == 1){
-        ball.xSpeed = -0.25;
-        ball.ySpeed = 0;
-      }
-      else if (delta_y < 1){
-        ball.xSpeed = -0.25;
-        ball.ySpeed = -0.5;
-      }
-      else {
-        ball.xSpeed = -0.25;
-        ball.ySpeed = 0.5;
-      }
+      player = 1;
     }
+    else{
+      player = 0;
+    }
+
+    int delta_y = floor(ball.y) - playerY[player];
+    if (delta_y == 1){
+      ball.xSpeed = player ? -0.56 : 0.56;
+      ball.ySpeed = 0;
+      Serial.println(ball.xSpeed);
+    }
+
+    else if (delta_y < 1){
+      ball.xSpeed = player ? -0.25 : 0.25;
+      ball.ySpeed = -0.5;
+      Serial.println(ball.xSpeed);
+    }
+
     else {
-      int delta_y = floor(ball.y-ball.ySpeed) - playerY[0];
-      if (delta_y == 1){
-        ball.xSpeed = 0.25;
-        ball.ySpeed = 0;
-      }
-      else if (delta_y < 1){
-        ball.xSpeed = 0.25;
-        ball.ySpeed = -0.5;
-      }
-      else {
-        ball.xSpeed = 0.25;
-        ball.ySpeed = 0.5;
-      }
+      ball.xSpeed = player ? -0.25 : 0.25;
+      ball.ySpeed = 0.5;
+      Serial.println(ball.xSpeed);
     }
+
+    ball.x += ball.xSpeed;
+    ball.y += ball.ySpeed;
+    world[(int)ball.x][(int)ball.y] == 1;
     delay(250);
   }
+
+}
+
+void drawBall(){
+
+  float nextX = ball.x + ball.xSpeed;
+  if (checkGoal(nextX)){return;}
+
+  float nextY = ball.y + ball.ySpeed;
+  wallCollision(nextY);
+
+  playerCollision(nextX, nextY);
   
 }
 
@@ -199,6 +229,10 @@ void loop() {
   handleInput(1);
   drawPaddles();
   drawBall();
+  Serial.print("x: ");
+  Serial.println(ball.xSpeed);
+  Serial.print("y: ");
+  Serial.println(ball.ySpeed);
 
 
   for (int i = 0; i < 16; i++) {
