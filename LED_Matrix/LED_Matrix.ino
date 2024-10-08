@@ -1,7 +1,6 @@
 #include <stdlib.h> // rand(), srand()
 #include <time.h> // time()
 #include "lib/iic.h" // All IIC functions
-#define RAND_MAX 9
 
 int IIC_SCL[2] = {A2, A4};
 int IIC_SDA[2] = {A1, A3};
