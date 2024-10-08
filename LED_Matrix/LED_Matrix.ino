@@ -1,4 +1,7 @@
-#include "lib/iic.h"
+#include <stdlib.h> // rand(), srand()
+#include <time.h> // time()
+#include "lib/iic.h" // All IIC functions
+#define RAND_MAX 9
 
 int IIC_SCL[2] = {A2, A4};
 int IIC_SDA[2] = {A1, A3};
@@ -12,6 +15,7 @@ int score[2] = { 0, 0 };
 
 //ANIMS
 int respawn = 0;
+int randomN = 10;
 
 struct ball_struct {
   float x;
@@ -73,6 +77,8 @@ bool checkGoal(float nextX, float nextY){
     score[0]++;
     Serial.print("Player 1: ");
     Serial.println(score[0]);
+    respawn = 1;
+    randomN = rand()%10;
     return 1;
   }
 
@@ -82,6 +88,8 @@ bool checkGoal(float nextX, float nextY){
     score[1]++;
     Serial.print("Player 2: ");
     Serial.println(score[1]);
+    respawn = 1;
+    randomN = rand()%10;
     return 1;
   }
 
@@ -194,16 +202,49 @@ void handleInput(int player) {
 
 }
 
+void respawnAnim(){
+  cleanMap();
+  drawPaddles();
+  if(respawn%2==1){
+    world[8][8] = 1;
+  }
+  respawn++;
+  if(respawn == 7){
+    respawn = 0;
+  }
+  delay(100);
+}
+void secretRespawnAnim(){
+  cleanMap();
+  drawPaddles();
+  if(respawn%2==1){
+    world[8][8] = 1;
+  }
+  if(respawn == 7 || respawn == 9 || respawn == 11){
+    delay(200);
+  }
+  respawn++;
+  if(respawn == 18){
+    respawn = 0;
+  }
+  delay(100);
+}
+
 void setup() {
+
   Serial.begin(9600);
+  srand(time(NULL));
+
   pinMode(IIC_SCL[0], OUTPUT);
   pinMode(IIC_SCL[1], OUTPUT);
   pinMode(IIC_SDA[0], OUTPUT);
   pinMode(IIC_SDA[1], OUTPUT);
+
   pinMode(up[0], INPUT);
   pinMode(up[1], INPUT);
   pinMode(down[0], INPUT);
   pinMode(down[1], INPUT);
+
   digitalWrite(IIC_SCL[0], LOW);
   digitalWrite(IIC_SCL[1], LOW);
   digitalWrite(IIC_SDA[0], LOW);
@@ -212,25 +253,29 @@ void setup() {
 
 /*----------------------------------------------------------------*/
 void loop() {
-  /**************set the address plus 1***************/
-  IIC_start(0);
-  IIC_start(1);
-  IIC_send(0x40, 0);
-  IIC_send(0x40, 1);  // set the address plus 1 automatically
-  IIC_end(0);
-  IIC_end(1);
-  /************end the process of address plus 1 *****************/
-  /************set the data display*****************/
+  
   IIC_start(0);
   IIC_start(1);
   IIC_send(0xc0, 0);  // set the initial address as 0 c0
   IIC_send(0xc0, 1);
 
-  cleanMap();
-  handleInput(0);
-  handleInput(1);
-  drawPaddles();
-  drawBall();
+  if (respawn != 0){
+    Serial.println(randomN);
+    if (randomN == 7){
+      secretRespawnAnim();
+    }
+    else{
+      respawnAnim();
+    }
+  }
+  else{
+    cleanMap();
+    handleInput(0);
+    handleInput(1);
+    drawPaddles();
+    drawBall();
+  }
+  
 
 
   for (int i = 0; i < 16; i++) {
