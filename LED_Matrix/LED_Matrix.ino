@@ -56,33 +56,6 @@ void handleInput(int player);
 void respawnAnim();
 void secretRespawnAnim();
 
-void respawnAnim(){
-  cleanMap();
-  drawPaddles();
-  if(respawn%2==1){
-    world[8][8] = 1;
-  }
-  respawn++;
-  if(respawn == 7){
-    respawn = 0;
-  }
-  delay(100);
-}
-void secretRespawnAnim(){
-  cleanMap();
-  drawPaddles();
-  if(respawn%2==1){
-    world[8][8] = 1;
-  }
-  if(respawn == 7 || respawn == 9 || respawn == 11){
-    delay(200);
-  }
-  respawn++;
-  if(respawn == 18){
-    respawn = 0;
-  }
-  delay(100);
-}
 
 void setup() {
 
