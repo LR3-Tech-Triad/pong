@@ -2,6 +2,8 @@
 #include <time.h> // time()
 #include "lib/iic.cpp" // All IIC functions
 
+//TODO: Mess with the brightness
+
 int up[2] = {2,4};
 int down[2] = {3,5};
 
@@ -94,17 +96,15 @@ void loop() {
     else{
       respawnAnim();
     }
+    return;
   }
-  else{
-    cleanMap();
-    handleInput(0);
-    handleInput(1);
-    drawPaddles();
-    drawBall();
-  }
+
+  cleanMap();
+  handleInput(0);
+  handleInput(1);
+  drawPaddles();
+  drawBall();
   
-
-
   for (int i = 0; i < 16; i++) {
 
     unsigned int values[2] = {0,0};
