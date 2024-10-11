@@ -87,7 +87,6 @@ void loop() {
   IIC_send(0xc0, 1);
 
   if (respawn != 0){
-    Serial.println(randomN);
     if (randomN == 7){
       secretRespawnAnim();
     }
