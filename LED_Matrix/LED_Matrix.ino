@@ -96,14 +96,15 @@ void loop() {
     else{
       respawnAnim();
     }
-    return;
   }
-
-  cleanMap();
-  handleInput(0);
-  handleInput(1);
-  drawPaddles();
-  drawBall();
+  else{
+    cleanMap();
+    handleInput(0);
+    handleInput(1);
+    drawPaddles();
+    drawBall();
+  }
+  
   
   for (int i = 0; i < 16; i++) {
 
@@ -113,6 +114,7 @@ void loop() {
 
     IIC_send(values[0], 0);  // send the display data
     IIC_send(values[1], 1);
+
   }
 
   IIC_end(0);
