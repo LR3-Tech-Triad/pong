@@ -2,6 +2,8 @@
 #include <time.h> // time()
 #include "lib/iic.cpp" // All IIC functions
 
+//TODO: Mess with the brightness
+
 int up[2] = {2,4};
 int down[2] = {3,5};
 
@@ -102,8 +104,7 @@ void loop() {
     drawBall();
   }
   
-
-
+  
   for (int i = 0; i < 16; i++) {
 
     unsigned int values[2] = {0,0};
@@ -112,6 +113,7 @@ void loop() {
 
     IIC_send(values[0], 0);  // send the display data
     IIC_send(values[1], 1);
+
   }
 
   IIC_end(0);
