@@ -12,8 +12,12 @@ int playerY[2] = { 3, 3 };
 int score[2] = { 0, 0 };
 
 //ANIMS
-int respawn = 0;
+const int ANIM_STEP_TIME = 100;
+unsigned long startTime = 0;
+int respawn = -1;
+const int RESPAWN_PATTERN[7] = {1,0,1,0,1,0,1};
 int randomN = 10;
+const int SECRET_RESPAWN_PATTERN[20] = {1,0,1,0,1,0,1,1,0,1,1,0,1,1,0,1,0,1,0,1};
 
 struct ball_struct {
   float x;
@@ -56,7 +60,6 @@ void cleanMap();
 void handleInput(int player);
 
 void respawnAnim();
-void secretRespawnAnim();
 
 
 void setup() {
@@ -88,13 +91,8 @@ void loop() {
   IIC_send(0xc0, 0);  // set the initial address as 0 c0
   IIC_send(0xc0, 1);
 
-  if (respawn != 0){
-    if (randomN == 7){
-      secretRespawnAnim();
-    }
-    else{
-      respawnAnim();
-    }
+  if (respawn != -1){
+    respawnAnim();
   }
   else{
     cleanMap();
@@ -288,28 +286,21 @@ void handleInput(int player) {
 
 void respawnAnim(){
   cleanMap();
+  handleInput(0);
+  handleInput(1);
   drawPaddles();
-  if(respawn%2==1){
-    world[8][8] = 1;
+
+  //Initialize start time if needed
+  if(startTime == 0){
+    startTime = millis();
   }
-  respawn++;
-  if(respawn == 7){
-    respawn = 0;
+  world[8][8] = randomN != 7 ? RESPAWN_PATTERN[respawn] : SECRET_RESPAWN_PATTERN[respawn];
+
+  respawn = (millis() - startTime)/ANIM_STEP_TIME;
+  Serial.println(randomN);
+
+  if((respawn == 7 && randomN != 7) || respawn == 20){
+    respawn = -1;
+    startTime = 0;
   }
-  delay(100);
-}
-void secretRespawnAnim(){
-  cleanMap();
-  drawPaddles();
-  if(respawn%2==1){
-    world[8][8] = 1;
-  }
-  if(respawn == 7 || respawn == 9 || respawn == 11){
-    delay(200);
-  }
-  respawn++;
-  if(respawn == 18){
-    respawn = 0;
-  }
-  delay(100);
 }
