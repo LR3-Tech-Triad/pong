@@ -13,8 +13,8 @@ int score[2] = { 0, 0 };
 
 //ANIMS
 const int ANIM_STEP_TIME = 100;
-int startTime = 0;
-int respawn = 0;
+unsigned long startTime = 0;
+int respawn = -1;
 const int RESPAWN_PATTERN[7] = {1,0,1,0,1,0,1};
 int randomN = 10;
 const int SECRET_RESPAWN_PATTERN[20] = {1,0,1,0,1,0,1,1,0,1,1,0,1,1,0,1,0,1,0,1};
@@ -91,7 +91,7 @@ void loop() {
   IIC_send(0xc0, 0);  // set the initial address as 0 c0
   IIC_send(0xc0, 1);
 
-  if (respawn != 0){
+  if (respawn != -1){
     respawnAnim();
   }
   else{
@@ -294,13 +294,13 @@ void respawnAnim(){
   if(startTime == 0){
     startTime = millis();
   }
-
   world[8][8] = randomN != 7 ? RESPAWN_PATTERN[respawn] : SECRET_RESPAWN_PATTERN[respawn];
 
   respawn = (millis() - startTime)/ANIM_STEP_TIME;
+  Serial.println(randomN);
 
   if((respawn == 7 && randomN != 7) || respawn == 20){
-    respawn = 0;
+    respawn = -1;
     startTime = 0;
   }
 }
